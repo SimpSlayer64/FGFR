@@ -56,3 +56,32 @@ python selfcheck.py with FGFR3_DOCK pointing to a folder that holds 9CD7.cif, 9C
 - seed 11 best score: -9.418 (FGFR3) and -8.966 (FGFR1), within 0.005.
 - RMSD of the FGFR3 top pose to crystal copy A: 1.352 A.
 The ensemble scripts need the PDB table and mmCIF files and are not covered by selfcheck.py.
+
+VERIFIED
+These checks were run from a copy of this folder placed in an empty folder outside the project (selfcheck.py and the ligand test), with the software versions listed above.
+- Seed 11 docking of dabogratinib (data/dabogratinib_corr.pdbqt, 30 A box, exhaustiveness 8, supplied receptors), best score in kcal/mol, against the stored value:
+    FGFR3 (9CD7): -9.418 (stored -9.418)
+    FGFR1 (9CD5): -8.966 (stored -8.966)
+- Redock RMSD of the FGFR3 top pose (seed 11) to crystal ligand copy A, symmetry-aware: 1.352 A (stored 1.352 A).
+- build_receptors.py: box centres identical to data/box_centers.json; atom counts 2652 (FGFR3) and 2744 (FGFR1), equal to the supplied receptor files. Hydrogen positions differ slightly from the supplied files, as stated above.
+- build_ligands.py: all 21 compounds were built in an empty folder. The InChIKey of each output SDF equals the InChIKey listed for that compound in the supplementary table of isomeric SMILES and InChIKeys (21 of 21 equal, 0 mismatches). The dabogratinib ATOM lines equal those of data/dabogratinib_corr.pdbqt.
+- Every script compiles, and p2_lib.py imports and runs its statistics function.
+
+NOT RUN
+The scripts below were not run in the clean copy. Each needs inputs that are not shipped here.
+- phase1j_rebuild_ligands.py: compounds.csv (table of the 21 compounds with SMILES and in_paper_20 column) and the existing <name>_corr.sdf / <name>_corr.pdbqt files of the docking folder.
+- p2_manifests.py: compounds.csv and the rebuilt ligand files in work/ligands/ (output of the step above).
+- p2_run_jobs.py: a manifest from p2_manifests.py or p2_sensitivity.py, and all ligand and receptor files named in it.
+- p2_rmsd_stage.py: compounds.csv, 9CD7.cif and 9CD5.cif, the pose files in work/runs/ (output of p2_run_jobs.py) and, for stages 2f and 2b_seed42, the earlier single-run pose files docked_<name>_<receptor>_corr.pdbqt.
+- p2_rmsd_summary.py: rmsd.csv (output of p2_rmsd_stage.py) and pose_drift_corr.csv (table of centroid drift of the single-run poses); it writes rmsd_summary.csv.
+- p2_rmsd_sanity.py: 9CD7.cif.
+- p2_replicates.py: compounds.csv, rmsd.csv, paper_values.csv (table of earlier single-run scores) and all five-seed run records in work/runs/replicates/.
+- p2_sensitivity.py: replicate_summary.csv, the base run records, the extra conformer ligands it builds, and sensitivity run records.
+- p2g_prep.py: 9CD7.cif and 9CD5.cif (it writes the chain-A files itself) and the ligand file work/ligands/dabogratinib_rebuilt.pdbqt.
+- validate.py: a docked FGFR3 pose file and 9CD7.cif in the current folder.
+- p3b_select.py: phase3/pdb_fgfr1_fgfr3_entries.csv (table of FGFR1 and FGFR3 PDB entries) and the mmCIF file of every entry in phase3/raw/pdb/.
+- p3b_prep.py: receptor_list.csv (output of p3b_select.py), the same mmCIF files, data/box_centers.json and Open Babel.
+- p3b_dock.py: the prepared ensemble receptors (output of p3b_prep.py), work/ligands/dabogratinib_rebuilt.pdbqt and the stored replicate run records for the reference check.
+- p3b_analyze.py: the run records and pose files written by p3b_dock.py.
+- p3c_null_build.py: receptor_list.csv, compounds.csv, internet access to the RCSB data API for the ligand records, and the mmCIF files.
+- The ensemble scripts above (p3b_*, p3c_null_build.py) are not covered by selfcheck.py.
